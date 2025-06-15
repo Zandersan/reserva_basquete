@@ -24,20 +24,19 @@ jobs:
 
       - name: Install Chromium and ChromeDriver
         run: |
-          # Install Chromium browser
+          # Install Chromium browser (non-snap version)
           sudo apt-get update
           sudo apt-get install -y chromium-browser
           
-          # Get installed Chromium version
-          CHROME_VERSION=$(chromium-browser --version | grep -oP 'Chromium \K\d+')
-          echo "Installed Chromium version: $CHROME_VERSION"
+          # Get installed Chromium major version
+          CHROME_MAJOR_VERSION=$(chromium-browser --version | grep -oP 'Chromium \K\d+')
+          echo "Installed Chromium version: $CHROME_MAJOR_VERSION"
           
-          # Install matching ChromeDriver
-          # Note: For Chromium 137+, we'll use the ChromeDriver for Chrome 137
-          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_VERSION.0.0.0/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
-          sudo mv chrome-for-testing/$CHROME_VERSION.0.0.0/linux64/chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
+          # Install ChromeDriver from Ubuntu repositories
+          sudo apt-get install -y chromium-chromedriver
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
+          
+          # Verify installation
           chromedriver --version
 
       - name: Executar script (reserva.py)
