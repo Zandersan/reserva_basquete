@@ -22,22 +22,39 @@ jobs:
           python -m pip install --upgrade pip
           pip install selenium
 
-      - name: Install Chromium and ChromeDriver
+      - name: Install Chrome and ChromeDriver
         run: |
-          # Install Chromium browser (non-snap version)
+          # Install Google Chrome (not Chromium)
           sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          
-          # Get installed Chromium major version
-          CHROME_MAJOR_VERSION=$(chromium-browser --version | grep -oP 'Chromium \K\d+')
-          echo "Installed Chromium version: $CHROME_MAJOR_VERSION"
-          
-          # Install ChromeDriver from Ubuntu repositories
-          sudo apt-get install -y chromium-chromedriver
-          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver
-          
-          # Verify installation
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+          # Get Chrome version and install matching ChromeDriver
+          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+')
+          echo "Installed Chrome version: $CHROME_VERSION"
+          wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*} -O chromedriver-version.txt
+          CHROMEDRIVER_VERSION=$(cat chromedriver-version.txt)
+          wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
           chromedriver --version
+
+      - name: Run script with retries
+        run: |
+          export DISPLAY=:0
+          for i in {1..3}; do
+            echo "Attempt $i/3"
+            if python reserva.py; then
+              echo "Script succeeded"
+              break
+            else
+              echo "Script failed, retrying..."
+              sleep 5
+            fi
+          done
 
       - name: Executar script (reserva.py)
         run: |

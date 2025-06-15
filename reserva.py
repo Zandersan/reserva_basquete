@@ -12,10 +12,14 @@ from email.message import EmailMessage
 import os
 
 options = Options()
-options.add_argument("--no-sandbox")  # Necessário para executar em container
-options.add_argument("--headless")    # Execução sem interface gráfica
+options.add_argument("--no-sandbox")
+options.add_argument("--headless")
 options.add_argument("--disable-dev-shm-usage")
-options.binary_location = "/usr/bin/chromium-browser"  # Caminho do Chromium no Ubuntu
+options.add_argument("--disable-gpu")
+options.add_argument("--window-size=1920,1080")
+
+# Explicitly set Chrome binary location
+options.binary_location = "/usr/bin/google-chrome-stable"
 
 driver = webdriver.Chrome(options=options)
 
