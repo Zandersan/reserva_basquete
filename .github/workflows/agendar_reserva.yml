@@ -22,17 +22,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install selenium
 
-      - name: Instalar Chromium e ChromeDriver
+      - name: Install Chromium and ChromeDriver
         run: |
+          # Install Chromium browser
           sudo apt-get update
           sudo apt-get install -y chromium-browser
+          
+          # Get installed Chromium version
           CHROME_VERSION=$(chromium-browser --version | grep -oP 'Chromium \K\d+')
-          wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION -O chromedriver-version.txt
-          CHROMEDRIVER_VERSION=$(cat chromedriver-version.txt)
-          wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
+          echo "Installed Chromium version: $CHROME_VERSION"
+          
+          # Install matching ChromeDriver
+          # Note: For Chromium 137+, we'll use the ChromeDriver for Chrome 137
+          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_VERSION.0.0.0/linux64/chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          sudo mv chrome-for-testing/$CHROME_VERSION.0.0.0/linux64/chromedriver /usr/local/bin/
           sudo chmod +x /usr/local/bin/chromedriver
+          chromedriver --version
 
       - name: Executar script (reserva.py)
         run: |
