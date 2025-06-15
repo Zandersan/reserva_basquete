@@ -1,0 +1,50 @@
+name: Agendamento Reserva Basquete
+
+on:
+  schedule:
+    - cron: '0 8,11,14,17,20 * * *'  # 5x/dia (horário UTC)
+  workflow_dispatch:  # Permite execução manual
+
+jobs:
+  reserva:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependências
+        run: |
+          python -m pip install --upgrade pip
+          pip install selenium
+
+      - name: Instalar Chromium e ChromeDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+          # Baixa o ChromeDriver compatível com a versão do Chromium
+          CHROME_VERSION=$(chromium-browser --version | grep -oP 'Chromium \K\d+')
+          wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION -O chromedriver-version.txt
+          CHROMEDRIVER_VERSION=$(cat chromedriver-version.txt)
+          wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+
+      - name: Executar script (reserva.py)
+        run: |
+          export DISPLAY=:0  # Necessário para virtual display (opcional)
+          python reserva.py
+
+      - name: Upload de logs (opcional)
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: logs-reserva
+          path: |
+            agendados.txt
+            *.png

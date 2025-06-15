@@ -1,6 +1,7 @@
 import time
 from datetime import datetime, timedelta
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -9,6 +10,14 @@ from selenium.webdriver.common.keys import Keys
 import smtplib
 from email.message import EmailMessage
 import os
+
+options = Options()
+options.add_argument("--no-sandbox")  # Necessário para executar em container
+options.add_argument("--headless")    # Execução sem interface gráfica
+options.add_argument("--disable-dev-shm-usage")
+options.binary_location = "/usr/bin/chromium-browser"  # Caminho do Chromium no Ubuntu
+
+driver = webdriver.Chrome(options=options)
 
 # Config SMTP
 SMTP_SERVER = 'smtp.gmail.com'
@@ -87,7 +96,7 @@ def domingo_cheio(data_domingo):
             partes = linha.strip().split('|')
             if len(partes) >= 3:
                 _, _, data_str, horario = partes
-                if data_str == data_domingo.isoformat() and horario in ["12:00", "13:00"]:
+                if data_str == data_domingo.isoformat() and horario in ["08:00", "09:00"]:
                     count += 1
     return count >= 2
 
@@ -146,7 +155,7 @@ def tentar_reserva(cpf, senha, data_domingo):
 
         Select(wait.until(EC.presence_of_element_located((By.ID, "selectAtividade")))).select_by_visible_text('Basquetebol')
         Select(driver.find_element(By.ID, "selectNucleo")).select_by_visible_text('Unidade Regional Boa Vista')
-        Select(driver.find_element(By.ID, "selectUnidade")).select_by_visible_text('CENTRO DE ESPORTE E LAZER RUA DA CIDADANIA BOA VISTA')
+        Select(driver.find_element(By.ID, "selectUnidade")).select_by_visible_text('CENTRO DE ESPORTE E LAZER AVELINO VIEIRA')
         Select(driver.find_element(By.ID, "selectSugestao")).select_by_visible_text('Não')
 
         capacidade_input = wait.until(EC.presence_of_element_located((By.ID, "capacidadePessoas")))
@@ -195,7 +204,7 @@ def tentar_reserva(cpf, senha, data_domingo):
 
                 for h in horarios:
                     texto_hora = h.text.strip()
-                    if texto_hora in ["12:00", "13:00"]:
+                    if texto_hora in ["08:00", "09:00"]:
                         botao = bloco.find_element(By.XPATH, ".//a[contains(text(), 'Mais detalhes')]")
                         driver.execute_script("arguments[0].click();", botao)
                         horario_escolhido = texto_hora
