@@ -1,6 +1,5 @@
 import time
 from datetime import datetime, timedelta
-from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -10,9 +9,7 @@ from selenium.webdriver.common.keys import Keys
 import smtplib
 from email.message import EmailMessage
 import os
-from selenium import __version__ as selenium_version
-
-print("Versão do Selenium:", selenium_version)
+import undetected_chromedriver as uc
 
 options = Options()
 options.add_argument("--no-sandbox")
@@ -22,7 +19,7 @@ options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 
 # Não é necessário definir binary_location se o Chrome estiver no PATH
-driver = webdriver.Chrome(options=options)
+driver = uc.Chrome()
 
 # Config SMTP
 SMTP_SERVER = 'smtp.gmail.com'
