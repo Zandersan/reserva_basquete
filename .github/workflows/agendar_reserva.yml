@@ -28,16 +28,28 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Instalar Chromedriver compatível
+      - name: Instalar Chromedriver compatível (Chrome for Testing)
         run: |
           set -eux
           CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
-          CHROME_MAJOR=$(echo $CHROME_VERSION | cut -d'.' -f1)
-          # Busca a versão mais próxima para o major do Chrome
-          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_MAJOR")
-          wget -O chromedriver.zip "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
+          # Baixa o JSON de releases do Chrome for Testing
+          JSON=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json)
+          # Extrai o download URL do chromedriver para a versão correta
+          DRIVER_URL=$(echo "$JSON" | python3 -c "
+import sys, json
+ver = '$CHROME_VERSION'
+data = json.load(sys.stdin)
+for channel in data['channels'].values():
+    if channel['version'] == ver:
+        for d in channel['downloads']['chromedriver']:
+            if d['platform'] == 'linux64':
+                print(d['url'])
+                exit(0)
+exit(1)
+")
+          wget -O chromedriver.zip "$DRIVER_URL"
           unzip chromedriver.zip
-          sudo mv chromedriver /usr/local/bin/chromedriver
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
           sudo chmod +x /usr/local/bin/chromedriver
 
       - name: Executar script com tentativas
