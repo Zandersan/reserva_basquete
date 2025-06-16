@@ -127,9 +127,6 @@ def tentar_reserva(cpf, senha, data_domingo):
     if not nome:
         nome = "Nome não encontrado"
     
-    options = webdriver.ChromeOptions()
-    options.add_argument("--start-maximized")
-    driver = webdriver.Chrome(options=options)
     wait = WebDriverWait(driver, WAIT_TIMEOUT)
     try:
         driver.get("https://curitibaemmovimento.curitiba.pr.gov.br/")
