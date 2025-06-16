@@ -10,6 +10,9 @@ from selenium.webdriver.common.keys import Keys
 import smtplib
 from email.message import EmailMessage
 import os
+from selenium import __version__ as selenium_version
+
+print("Versão do Selenium:", selenium_version)
 
 options = Options()
 options.add_argument("--no-sandbox")
