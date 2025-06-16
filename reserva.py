@@ -10,8 +10,7 @@ import smtplib
 from email.message import EmailMessage
 import os
 from selenium import webdriver
-
-
+from selenium.webdriver.chrome.service import Service
 
 options = Options()
 options.add_argument("--no-sandbox")
@@ -20,8 +19,9 @@ options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 
-# Não é necessário definir binary_location se o Chrome estiver no PATH
-driver = webdriver.Chrome()
+# Especifica o path para evitar autoupdate
+service = Service("/usr/local/bin/chromedriver")
+driver = webdriver.Chrome(service=service, options=options)
 
 # Config SMTP
 SMTP_SERVER = 'smtp.gmail.com'
