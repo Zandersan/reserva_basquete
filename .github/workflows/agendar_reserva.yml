@@ -36,17 +36,17 @@ jobs:
           JSON=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json)
           # Extrai o download URL do chromedriver para a versão correta
           DRIVER_URL=$(echo "$JSON" | python3 -c "
-import sys, json
-ver = '$CHROME_VERSION'
-data = json.load(sys.stdin)
-for channel in data['channels'].values():
-    if channel['version'] == ver:
-        for d in channel['downloads']['chromedriver']:
-            if d['platform'] == 'linux64':
-                print(d['url'])
-                exit(0)
-exit(1)
-")
+          import sys, json
+          ver = '$CHROME_VERSION'
+          data = json.load(sys.stdin)
+          for channel in data['channels'].values():
+              if channel['version'] == ver:
+                  for d in channel['downloads']['chromedriver']:
+                      if d['platform'] == 'linux64':
+                          print(d['url'])
+                          exit(0)
+          exit(1)
+          ")
           wget -O chromedriver.zip "$DRIVER_URL"
           unzip chromedriver.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
