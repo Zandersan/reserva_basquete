@@ -131,8 +131,16 @@ def tentar_reserva(cpf, senha, data_domingo):
     try:
         driver.get("https://curitibaemmovimento.curitiba.pr.gov.br/")
         print("Página inicial carregada.")
-        wait.until(EC.element_to_be_clickable((By.ID, "btnPortal"))).click()
-        print("Cliquei em btnPortal.")
+        try:
+            wait.until(EC.element_to_be_clickable((By.ID, "btnPortal"))).click()
+        except TimeoutException:
+            print("Timeout: btnPortal não encontrado")
+            print("Título:", driver.title)
+            print("URL:", driver.current_url)
+            driver.save_screenshot("debug.png")
+            with open("pagina_debug.html", "w", encoding="utf-8") as f:
+                f.write(driver.page_source)
+            raise
         wait.until(EC.element_to_be_clickable((By.ID, "brasileiro"))).click()
         print("Cliquei em brasileiro.")
         wait.until(EC.presence_of_element_located((By.ID, "documento"))).send_keys(cpf)
