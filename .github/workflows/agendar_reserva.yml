@@ -15,24 +15,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install selenium
 
-      - name: Instalar Google Chrome 126 (versão fixa)
+      - name: Instalar Google Chrome
         run: |
-          sudo apt-get remove -y google-chrome-stable || true
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list || true
           sudo apt-get update
-          sudo apt-get install -y wget unzip
-          wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_126.0.6478.114-1_amd64.deb
-          sudo dpkg -i google-chrome-stable_126.0.6478.114-1_amd64.deb
-          google-chrome --version
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
-      - name: Instalar Chromedriver versão 126
+      - name: Instalar Chromedriver
         run: |
-          CHROME_DRIVER_VERSION=126.0.6478.114
-          wget https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          chromedriver --version
+          CHROME_VERSION=137.0.7151.103
+          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_VERSION/linux64/chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          chmod +x /usr/local/bin/chromedriver
 
 
       - name: Executar script com tentativas
