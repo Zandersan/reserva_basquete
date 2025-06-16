@@ -10,7 +10,6 @@ import smtplib
 from email.message import EmailMessage
 import os
 from selenium import webdriver
-import chromedriver_autoinstaller
 
 
 
@@ -22,7 +21,6 @@ options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 
 # Não é necessário definir binary_location se o Chrome estiver no PATH
-chromedriver_autoinstaller.install()
 driver = webdriver.Chrome()
 
 # Config SMTP
