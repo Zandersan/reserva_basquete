@@ -115,13 +115,9 @@ def enviar_email_com_confirmacao(cpf, nome, data, horario):
     print('Email enviado com sucesso.')
 
 def tentar_reserva(cpf, senha, data_domingo):
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    driver = webdriver.Chrome(options=options)
+    chrome_options = Options()
+    chrome_options.add_argument('--user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"')
+    driver = webdriver.Chrome(options=chrome_options)
     
     nome = get_nome_por_cpf(cpf)
     if not nome:
