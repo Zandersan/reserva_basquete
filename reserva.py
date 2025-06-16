@@ -189,6 +189,11 @@ def tentar_reserva(cpf, senha, data_domingo):
         wait.until(EC.presence_of_all_elements_located((By.XPATH, "//div[contains(@class, 'resultado')]")))
         blocos = driver.find_elements(By.XPATH, "//div[contains(@class, 'resultado')]")
 
+        if not blocos:
+        print(f"Nenhuma data ou horário disponível para {data_formatada_html}.")
+        driver.quit()
+        return False
+
         horario_escolhido = None
         clicou = False
 
