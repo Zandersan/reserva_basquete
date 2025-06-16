@@ -12,16 +12,6 @@ import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 
-chrome_options = Options()
-chrome_options.add_argument("--headless=new")
-chrome_options.add_argument("--no-sandbox")
-chrome_options.add_argument("--disable-dev-shm-usage")
-chrome_options.add_argument("--disable-gpu")
-chrome_options.add_argument("--window-size=1920,1080")
-
-# Especifica o path para evitar autoupdate
-driver = webdriver.Chrome(options=chrome_options)
-
 # Config SMTP
 SMTP_SERVER = 'smtp.gmail.com'
 SMTP_PORT = 587
@@ -124,6 +114,14 @@ def enviar_email_com_confirmacao(cpf, nome, data, horario):
     print('Email enviado com sucesso.')
 
 def tentar_reserva(cpf, senha, data_domingo):
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
+    driver = webdriver.Chrome(options=options)
+    
     nome = get_nome_por_cpf(cpf)
     if not nome:
         nome = "Nome não encontrado"
