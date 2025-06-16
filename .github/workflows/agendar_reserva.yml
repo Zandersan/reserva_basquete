@@ -32,20 +32,30 @@ jobs:
         run: |
           set -eux
           CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
-          # Baixa o JSON de releases do Chrome for Testing
           JSON=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json)
-          # Extrai o download URL do chromedriver para a versão correta
+          # Tenta achar o driver exato, senão pega do canal Stable (que é sempre compatível)
           DRIVER_URL=$(echo "$JSON" | python3 -c "
           import sys, json
           ver = '$CHROME_VERSION'
           data = json.load(sys.stdin)
+          url = None
+          # 1. Procura canal com versão exata
           for channel in data['channels'].values():
               if channel['version'] == ver:
                   for d in channel['downloads']['chromedriver']:
                       if d['platform'] == 'linux64':
-                          print(d['url'])
-                          exit(0)
-          exit(1)
+                          url = d['url']
+                          break
+          # 2. Se não achou, usa o Stable
+          if not url:
+              for d in data['channels']['Stable']['downloads']['chromedriver']:
+                  if d['platform'] == 'linux64':
+                      url = d['url']
+                      break
+          if url:
+              print(url)
+          else:
+              exit(1)
           ")
           wget -O chromedriver.zip "$DRIVER_URL"
           unzip chromedriver.zip
