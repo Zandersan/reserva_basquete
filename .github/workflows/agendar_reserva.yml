@@ -1,3 +1,10 @@
+name: Agendar Reserva
+
+on:
+  schedule:
+    - cron: '0 6,9,12,15,18 * * *' # Executa às 06:00, 09:00, 12:00, 15:00 e 18:00 UTC todos os dias
+  workflow_dispatch:
+
 jobs:
   reserva:
     runs-on: ubuntu-latest
@@ -23,14 +30,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-      - name: Instalar Chromedriver
+      - name: Instalar Chromedriver compatível
         run: |
-          CHROME_VERSION=137.0.7151.103
-          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/$CHROME_VERSION/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
-          mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-          chmod +x /usr/local/bin/chromedriver
-
+          set -e
+          # Descobrir a versão instalada do Chrome
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | \
+            python3 -c "import sys, json; v='$CHROME_VERSION'.rsplit('.', 1)[0]; d=json.load(sys.stdin)['channels']['Stable']['downloads']['chromedriver']; print([i['version'] for i in d if i['version'].startswith(v)][0])")
+          # Baixar e instalar o chromedriver correspondente
+          wget -O chromedriver.zip "https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip"
+          unzip chromedriver.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          sudo chmod +x /usr/local/bin/chromedriver
 
       - name: Executar script com tentativas
         run: |
