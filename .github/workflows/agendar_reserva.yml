@@ -1,10 +1,3 @@
-name: Agendamento Reserva Basquete
-
-on:
-  schedule:
-    - cron: '0 8,11,14,17,20 * * *'  # Horários UTC (5h, 8h, 11h, 14h, 17h BRT)
-  workflow_dispatch:
-
 jobs:
   reserva:
     runs-on: ubuntu-latest
@@ -22,50 +15,24 @@ jobs:
           python -m pip install --upgrade pip
           pip install selenium
 
-      - name: Install Chrome and ChromeDriver
+      - name: Instalar Google Chrome
         run: |
-          # Install Google Chrome (not Chromium)
           sudo apt-get update
           wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
 
-          # Get Chrome version and install matching ChromeDriver
-          CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+')
-          echo "Installed Chrome version: $CHROME_VERSION"
-          wget https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*} -O chromedriver-version.txt
-          CHROMEDRIVER_VERSION=$(cat chromedriver-version.txt)
-          wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-          chromedriver --version
-
-      - name: Run script with retries
+      - name: Executar script com tentativas
         run: |
           export DISPLAY=:0
           for i in {1..3}; do
-            echo "Attempt $i/3"
+            echo "Tentativa $i/3"
             if python reserva.py; then
-              echo "Script succeeded"
+              echo "Script executado com sucesso"
               break
             else
-              echo "Script failed, retrying..."
+              echo "Falhou, tentando novamente..."
               sleep 5
             fi
           done
-
-      - name: Executar script (reserva.py)
-        run: |
-          export DISPLAY=:0
-          python reserva.py
-
-      - name: Upload de logs (opcional)
-        if: always()
-        uses: actions/upload-artifact@v4  # Versão atualizada para v4
-        with:
-          name: logs-reserva
-          path: |
-            agendados.txt
-            *.png

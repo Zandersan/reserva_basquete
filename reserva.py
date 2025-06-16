@@ -18,9 +18,7 @@ options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 options.add_argument("--window-size=1920,1080")
 
-# Explicitly set Chrome binary location
-options.binary_location = "/usr/bin/google-chrome-stable"
-
+# Não é necessário definir binary_location se o Chrome estiver no PATH
 driver = webdriver.Chrome(options=options)
 
 # Config SMTP
