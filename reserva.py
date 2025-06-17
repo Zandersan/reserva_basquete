@@ -143,15 +143,10 @@ def tentar_reserva(cpf, senha, data_domingo):
                 f.write(driver.page_source)
             raise
         wait.until(EC.element_to_be_clickable((By.ID, "brasileiro"))).click()
-        print("Cliquei em brasileiro.")
         wait.until(EC.presence_of_element_located((By.ID, "documento"))).send_keys(cpf)
-        print("Cliquei em CPF.")
         driver.find_element(By.ID, "btnProximo").click()
-        print("Cliquei em Proximo.")
         wait.until(EC.presence_of_element_located((By.ID, "senha"))).send_keys(senha)
-        print("Cliquei em Senha.")
         driver.find_element(By.ID, "btnSenhaProximo").click()
-        print("Login efetuado.")
 
         # Verifica se já está reservado
         try:
@@ -169,13 +164,9 @@ def tentar_reserva(cpf, senha, data_domingo):
         wait.until(EC.element_to_be_clickable((By.ID, "btnNovaReserva"))).click()
 
         Select(wait.until(EC.presence_of_element_located((By.ID, "selectAtividade")))).select_by_visible_text('Basquetebol')
-        print("selectAtividade.")
         Select(driver.find_element(By.ID, "selectNucleo")).select_by_visible_text('Unidade Regional Boa Vista')
-        print("selectNucleo.")
         Select(driver.find_element(By.ID, "selectUnidade")).select_by_visible_text('CENTRO DE ESPORTE E LAZER AVELINO VIEIRA')
-        print("selectUnidade.")
         Select(driver.find_element(By.ID, "selectSugestao")).select_by_visible_text('Não')
-        print("selectSugestao.")
 
         capacidade_input = wait.until(EC.presence_of_element_located((By.ID, "capacidadePessoas")))
         capacidade_input.clear()
@@ -183,7 +174,6 @@ def tentar_reserva(cpf, senha, data_domingo):
         capacidade_input.send_keys(Keys.TAB)
         time.sleep(1)
         driver.find_element(By.ID, "btnConfirmaCapacidade").click()
-        print("btnConfirmaCapacidade.")
 
         data_input = wait.until(EC.presence_of_element_located((By.ID, "dataReferencia")))
         data_formatada = data_domingo.strftime('%Y-%m-%d')
@@ -195,7 +185,6 @@ def tentar_reserva(cpf, senha, data_domingo):
         """)
         time.sleep(1)
         driver.find_element(By.ID, "btnConfirmaData").click()
-        print("btnConfirmaData.")
         time.sleep(2)
 
         try:
