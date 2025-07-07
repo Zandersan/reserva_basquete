@@ -51,7 +51,7 @@ def ler_agendados():
                 partes = linha.strip().split('|')
                 if len(partes) >= 3:
                     cpf = partes[0].strip()
-                    data_str = partes[1].strip()
+                    data_str = partes[2].strip()  # Alterado para pegar a data da terceira coluna
                     # Verifica se a data do agendamento ainda não passou
                     try:
                         data_agendamento = datetime.strptime(data_str, "%Y-%m-%d").date()
@@ -90,7 +90,7 @@ def domingo_cheio(data_domingo):
             partes = linha.strip().split('|')
             if len(partes) >= 3:
                 _, _, data_str, horario = partes
-                if data_str == data_domingo.isoformat() and horario in ["08:00", "09:00"]:
+                if data_str == data_domingo.isoformat() and horario in ["08:00", "09:00", "10:00", "11:00"]:
                     count += 1
     return count >= 2
 
@@ -144,9 +144,29 @@ def tentar_reserva(cpf, senha, data_domingo):
             raise
         wait.until(EC.element_to_be_clickable((By.ID, "brasileiro"))).click()
         wait.until(EC.presence_of_element_located((By.ID, "documento"))).send_keys(cpf)
-        driver.find_element(By.ID, "btnProximo").click()
+        
+        try:
+            driver.find_element(By.ID, "btnProximo").click()
+        except TimeoutException:
+            print("Timeout: btnProximo não encontrado")
+            print("Título:", driver.title)
+            print("URL:", driver.current_url)
+            driver.save_screenshot("debug.png")
+            with open("pagina_debug.html", "w", encoding="utf-8") as f:
+                f.write(driver.page_source)
+            raise
+
         wait.until(EC.presence_of_element_located((By.ID, "senha"))).send_keys(senha)
-        driver.find_element(By.ID, "btnSenhaProximo").click()
+        try:
+            driver.find_element(By.ID, "btnSenhaProximo").click()
+        except TimeoutException:
+            print("Timeout: btnSenhaProximo não encontrado")
+            print("Título:", driver.title)
+            print("URL:", driver.current_url)
+            driver.save_screenshot("debug.png")
+            with open("pagina_debug.html", "w", encoding="utf-8") as f:
+                f.write(driver.page_source)
+            raise
 
         # Verifica se já está reservado
         try:
@@ -161,7 +181,16 @@ def tentar_reserva(cpf, senha, data_domingo):
         except (TimeoutException, NoSuchElementException):
             pass
 
-        wait.until(EC.element_to_be_clickable((By.ID, "btnNovaReserva"))).click()
+        try:
+            wait.until(EC.element_to_be_clickable((By.ID, "btnNovaReserva"))).click()
+        except TimeoutException:
+            print("Timeout: btnNovaReserva não encontrado")
+            print("Título:", driver.title)
+            print("URL:", driver.current_url)
+            driver.save_screenshot("debug.png")
+            with open("pagina_debug.html", "w", encoding="utf-8") as f:
+                f.write(driver.page_source)
+            raise
 
         Select(wait.until(EC.presence_of_element_located((By.ID, "selectAtividade")))).select_by_visible_text('Basquetebol')
         Select(driver.find_element(By.ID, "selectNucleo")).select_by_visible_text('Unidade Regional Boa Vista')
@@ -219,7 +248,7 @@ def tentar_reserva(cpf, senha, data_domingo):
 
                 for h in horarios:
                     texto_hora = h.text.strip()
-                    if texto_hora in ["08:00", "09:00"]:
+                    if texto_hora in ["08:00", "09:00", "10:00", "11:00"]:
                         botao = bloco.find_element(By.XPATH, ".//a[contains(text(), 'Mais detalhes')]")
                         driver.execute_script("arguments[0].click();", botao)
                         horario_escolhido = texto_hora
@@ -263,27 +292,33 @@ def tentar_reserva(cpf, senha, data_domingo):
         driver.quit()
         return False
 
-def main():
+def executar_rotina():
+    print(f"\n{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Iniciando execução única...")
     agendados = ler_agendados()
     cpfs_senhas = ler_cpfs_senhas()
     hoje = datetime.now().date()
+    
+    limite_atingido_global = False
 
     for cpf, senha in cpfs_senhas:
         # Verifica se já tem agendamento ativo
         if cpf in agendados:
-            print(f"CPF {cpf} já possui agendamento ativo para {agendados[cpf]}. Pulando...")
-            continue
-            
+            data_agendamento = agendados[cpf]
+            if data_agendamento >= hoje:
+                print(f"CPF {cpf} já possui agendamento ativo para {data_agendamento}. Pulando...")
+                continue
+                
         print(f"Tentando com CPF: {cpf}")
         data_busca = proximo_domingo_apos(hoje - timedelta(days=1))
         tentativas = 0
+        limite_atingido = False
 
-        while tentativas < 10:
+        while tentativas < 10 and not limite_atingido_global:
             if data_busca > hoje + timedelta(days=60):
-                print(f"Data {data_busca} passou do limite de 2 meses. Reiniciando a busca...")
-                data_busca = proximo_domingo_apos(hoje)
-                tentativas += 1
-                continue
+                print(f"Data {data_busca} passou do limite de 2 meses. Parando a execução.")
+                limite_atingido = True
+                limite_atingido_global = True
+                break
 
             if domingo_cheio(data_busca):
                 print(f"{data_busca} já possui 2 horários agendados. Pulando...")
@@ -297,6 +332,20 @@ def main():
 
             data_busca += timedelta(days=7)
             tentativas += 1
+        
+        # Se atingiu o limite de datas global, sai do loop de CPFs
+        if limite_atingido_global:
+            print("Limite de 2 meses atingido. Parando a busca para todos os CPFs.")
+            break
+
+def main():
+    try:
+        executar_rotina()
+    except Exception as e:
+        print(f"Erro durante a execução: {e}")
+        traceback.print_exc()
+    finally:
+        print("Execução concluída.")
 
 if __name__ == "__main__":
     main()
