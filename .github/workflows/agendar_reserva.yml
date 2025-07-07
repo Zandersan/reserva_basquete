@@ -10,6 +10,11 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      - name: Create required files from secrets
+        run: |
+          echo "${{ secrets.CPF_DATA }}" > cpf.txt
+          echo "${{ secrets.SENHA_DATA }}" > senha.txt
+
       - name: Instalar dependências do Chrome Headless
         run: |
           sudo apt-get update
