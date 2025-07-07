@@ -61,9 +61,9 @@ def ler_agendados():
                         continue
     return agendados
 
-def salvar_agendado(cpf, nome, data, horario):
+def salvar_agendado(nome, data, horario):
     with open(ARQ_AGENDADOS, 'a') as f:
-        f.write(f"{cpf}|{nome}|{data.isoformat()}|{horario}\n")
+        f.write(f"{nome}|{data.isoformat()}|{horario}\n")
 
 def get_nome_por_cpf(cpf):
     with open(ARQ_CPF, 'r') as f:
@@ -281,9 +281,9 @@ def tentar_reserva(cpf, senha, data_domingo):
         wait.until(EC.element_to_be_clickable((By.ID, "btnContinuar"))).click()
 
         time.sleep(5)
-        salvar_agendado(cpf, nome, data_domingo, horario_escolhido)
-        enviar_email_com_confirmacao(cpf, nome, data_domingo, horario_escolhido)
-        print(f"Reserva feita para {cpf} ({nome}) em {data_domingo} - {horario_escolhido}")
+        salvar_agendado(nome, data_domingo, horario_escolhido)
+        enviar_email_com_confirmacao(nome, data_domingo, horario_escolhido)
+        print(f"Reserva feita para ({nome}) em {data_domingo} - {horario_escolhido}")
         driver.quit()
         return True
     except Exception as e:
@@ -302,10 +302,10 @@ def executar_rotina():
 
     for cpf, senha in cpfs_senhas:
         # Verifica se já tem agendamento ativo
-        if cpf in agendados:
-            data_agendamento = agendados[cpf]
+        if nome in agendados:
+            data_agendamento = agendados[nome]
             if data_agendamento >= hoje:
-                print(f"CPF {cpf} já possui agendamento ativo para {data_agendamento}. Pulando...")
+                print(f"NOME {nome} já possui agendamento ativo para {data_agendamento}. Pulando...")
                 continue
                 
         print(f"Tentando com CPF: {cpf}")
