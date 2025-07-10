@@ -130,6 +130,15 @@ def tentar_reserva(cpf, senha, data_domingo):
     
     wait = WebDriverWait(driver, WAIT_TIMEOUT)
     try:
+        # Verificar se é a data e horário específico que queremos ignorar
+        data_especifica = datetime(2025, 7, 13).date()
+        horario_especifico = "11:00"
+        
+        if data_domingo == data_especifica:
+            print(f"Ignorando reservas para o dia {data_especifica} conforme solicitado.")
+            driver.quit()
+            return False
+            
         driver.get("https://curitibaemmovimento.curitiba.pr.gov.br/")
         print("Página inicial carregada.")
         try:
@@ -248,6 +257,9 @@ def tentar_reserva(cpf, senha, data_domingo):
 
                 for h in horarios:
                     texto_hora = h.text.strip()
+                    # Ignorar o horário específico na data específica
+                    if data_domingo == data_especifica and texto_hora == horario_especifico:
+                        continue
                     if texto_hora in ["08:00", "09:00", "10:00", "11:00"]:
                         botao = bloco.find_element(By.XPATH, ".//a[contains(text(), 'Mais detalhes')]")
                         driver.execute_script("arguments[0].click();", botao)
