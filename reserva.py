@@ -130,12 +130,10 @@ def tentar_reserva(cpf, senha, data_domingo):
     
     wait = WebDriverWait(driver, WAIT_TIMEOUT)
     try:
-        # Verificar se é a data e horário específico que queremos ignorar
-        data_especifica = datetime(2025, 7, 13).date()
-        horario_especifico = "11:00"
-        
-        if data_domingo == data_especifica:
-            print(f"Ignorando reservas para o dia {data_especifica} conforme solicitado.")
+        # Verificar se é a data que queremos ignorar
+        data_ignorada = datetime(2025, 7, 27).date()
+        if data_domingo == data_ignorada:
+            print(f"Data {data_domingo} ignorada para reservas. Pulando CPF: {cpf}")
             driver.quit()
             return False
             
