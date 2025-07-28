@@ -258,7 +258,7 @@ def tentar_reserva(cpf, senha, data_domingo):
                     # Ignorar o horário específico na data específica
                     if data_domingo == data_especifica and texto_hora == horario_especifico:
                         continue
-                    if texto_hora in ["08:00", "09:00", "10:00", "11:00"]:
+                    if texto_hora in ["08:00", "09:00"]:
                         botao = bloco.find_element(By.XPATH, ".//a[contains(text(), 'Mais detalhes')]")
                         driver.execute_script("arguments[0].click();", botao)
                         horario_escolhido = texto_hora
