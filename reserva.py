@@ -328,7 +328,7 @@ def tentar_reserva(cpf, senha, data_domingo):
         """)
         time.sleep(1)
         driver.find_element(By.ID, "btnConfirmaData").click()
-        time.sleep(2)
+        time.sleep(5)
 
         try:
             msg_erro = driver.find_element(By.XPATH, "//*[contains(text(),'Infelizmente não encontramos nenhum espaço físico')]")
@@ -444,7 +444,7 @@ def executar_rotina():
         limite_atingido = False
 
         while tentativas < 10 and not limite_atingido_global:
-            if data_busca > hoje + timedelta(days=15):
+            if data_busca > hoje + timedelta(days=30):
                 print(f"Data {data_busca} passou do limite de 15 dias. Reiniciando a busca...")
                 # Marca que atingiu o limite e sai do loop
                 limite_atingido = True
@@ -468,18 +468,12 @@ def executar_rotina():
         if limite_atingido_global:
             print("Limite de 15 dias atingido. Reiniciando a busca a partir do próximo domingo.")
             # Aguarda um tempo antes de reiniciar
-            time.sleep(300)  # 5 minutos
+            #time.sleep(300)  # 5 minutos
             break  # Sai do loop de CPFs para reiniciar a execução
 
 def main():
     # Migrar dados na primeira execução
     migrar_dados_criptografados()
-    
-    try:
-        executar_rotina()
-    except Exception as e:
-        print(f"Erro durante a execução: {e}")
-        traceback.print_exc()
 
 if __name__ == "__main__":
     main()
