@@ -259,10 +259,20 @@ def tentar_reserva(cpf, senha, data_domingo):
             
         driver.get("https://curitibaemmovimento.curitiba.pr.gov.br/")
         print("Página inicial carregada.")
+        # Fecha popup inicial se aparecer
+        try:
+            botao_popup = WebDriverWait(driver, 5).until(
+                EC.element_to_be_clickable((By.XPATH, "//*[@id='btn-fechar-popup']"))
+            )
+            driver.execute_script("arguments[0].click();", botao_popup)
+            print("Popup inicial fechado.")
+        except TimeoutException:
+            print("Popup não apareceu, seguindo fluxo normal.")
+    
         try:
             wait.until(EC.element_to_be_clickable((By.ID, "btnPortal"))).click()
         except TimeoutException:
-            print("Timeout: btnPortal não encontrado")
+            print("Timeout: btnPortal não encontrado") 
             print("Título:", driver.title)
             print("URL:", driver.current_url)
             driver.save_screenshot("debug.png")
@@ -474,6 +484,17 @@ def executar_rotina():
 def main():
     # Migrar dados na primeira execução
     migrar_dados_criptografados()
+    
+    while True:
+        try:
+            executar_rotina()
+        except Exception as e:
+            print(f"Erro durante a execução: {e}")
+            traceback.print_exc()
+        
+        # Espera 10 minutos antes da próxima execução
+        # print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - Aguardando 10 minutos para próxima execução...")
+        # time.sleep(600)
 
 if __name__ == "__main__":
     main()
